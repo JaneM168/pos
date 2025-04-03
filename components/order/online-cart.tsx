@@ -33,6 +33,14 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
     postal_code: "",
     instructions: ""
   })
+  const [errors, setErrors] = useState({
+    line1: false,
+    line2: false,
+    city: false,
+    state: false,
+    postal_code: false,
+    instructions: false
+  });
 
   const subtotal = items.reduce((sum, item) => {
     const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price
@@ -42,15 +50,16 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
   const total = subtotal + tax
 
   const validateAddress = () => {
-    if (!address.line1 || !address.city || !address.state || !address.postal_code) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required address fields",
-        variant: "destructive",
-      })
-      return false
-    }
-    return true
+    const newErrors = {
+      line1: address.line1.length < 3,
+      city: address.city.length < 2,
+      state: address.state.length < 2,
+      postal_code: address.postal_code.length < 5,
+      line2: false,
+      instructions: false
+    };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(Boolean);
   }
 
   const handleCheckout = async () => {
@@ -88,7 +97,7 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
       }
 
       const { orderId } = await response.json()
-      
+
       window.location.href = `/order/payment/${orderId}`
     } catch (error) {
       console.error('Checkout error:', error)
@@ -169,7 +178,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                 <Input
                   id="line1"
                   value={address.line1}
-                  onChange={(e) => setAddress({ ...address, line1: e.target.value })}
+                  onChange={(e) => {
+                    setAddress({ ...address, line1: e.target.value })
+                    setErrors({ ...errors, line1: e.target.value.length < 3 })
+                  }}
+                  className={errors.line1 ? "border-red-500" : ""}
                   required
                 />
               </div>
@@ -178,7 +191,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                 <Input
                   id="line2"
                   value={address.line2}
-                  onChange={(e) => setAddress({ ...address, line2: e.target.value })}
+                  onChange={(e) => {
+                    setAddress({ ...address, line2: e.target.value })
+                    setErrors({ ...errors, line2: e.target.value.length < 3 })
+                  }}
+                  className={errors.line2 ? "border-red-500" : ""}
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -187,7 +204,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                   <Input
                     id="city"
                     value={address.city}
-                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                    onChange={(e) => {
+                      setAddress({ ...address, city: e.target.value })
+                      setErrors({ ...errors, city: e.target.value.length < 2 })
+                    }}
+                    className={errors.city ? "border-red-500" : ""}
                     required
                   />
                 </div>
@@ -196,7 +217,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                   <Input
                     id="state"
                     value={address.state}
-                    onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                    onChange={(e) => {
+                      setAddress({ ...address, state: e.target.value })
+                      setErrors({ ...errors, state: e.target.value.length < 2 })
+                    }}
+                    className={errors.state ? "border-red-500" : ""}
                     required
                   />
                 </div>
@@ -206,7 +231,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                 <Input
                   id="postal_code"
                   value={address.postal_code}
-                  onChange={(e) => setAddress({ ...address, postal_code: e.target.value })}
+                  onChange={(e) => {
+                    setAddress({ ...address, postal_code: e.target.value })
+                    setErrors({ ...errors, postal_code: e.target.value.length < 5 })
+                  }}
+                  className={errors.postal_code ? "border-red-500" : ""}
                   required
                 />
               </div>
@@ -215,7 +244,11 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
                 <Input
                   id="instructions"
                   value={address.instructions}
-                  onChange={(e) => setAddress({ ...address, instructions: e.target.value })}
+                  onChange={(e) => {
+                    setAddress({ ...address, instructions: e.target.value })
+                    setErrors({ ...errors, instructions: e.target.value.length < 3 })
+                  }}
+                  className={errors.instructions ? "border-red-500" : ""}
                   placeholder="Optional: Gate code, landmarks, etc."
                 />
               </div>
@@ -234,4 +267,4 @@ export function OnlineCart({ items = [], onUpdateQuantity, onRemoveItem }: Onlin
       </CardFooter>
     </Card>
   )
-} 
+}

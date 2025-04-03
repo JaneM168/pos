@@ -9,7 +9,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
   const { toast } = useToast()
@@ -18,7 +18,7 @@ export default function AdminLogin() {
     e.preventDefault()
     
     const result = await signIn("credentials", {
-      username,
+      email,
       password,
       redirect: false,
     })
@@ -44,12 +44,12 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="email">Email</label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>

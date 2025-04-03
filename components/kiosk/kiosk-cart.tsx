@@ -44,15 +44,6 @@ export function KioskCart({ items = [], onUpdateQuantity, onRemoveItem }: KioskC
     setIsProcessing(true)
 
     try {
-      // Log the order data being sent
-      console.log('Sending order:', {
-        items,
-        subtotal,
-        tax,
-        total,
-        orderType: "kiosk"
-      })
-
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,19 +57,15 @@ export function KioskCart({ items = [], onUpdateQuantity, onRemoveItem }: KioskC
       })
 
       const data = await response.json()
-      console.log('Response received:', data)
 
       if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to create order")
+        throw new Error(data.error || "Failed to create order")
       }
 
       const { orderId } = data
       window.location.href = `/kiosk/payment/${orderId}`
     } catch (error) {
-      console.error('Checkout error:', {
-        message: error.message,
-        stack: error.stack
-      })
+      console.error('Checkout error:', error)
       toast({
         title: "Error",
         description: error.message || "Failed to process order",

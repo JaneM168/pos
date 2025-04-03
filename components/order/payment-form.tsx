@@ -116,7 +116,7 @@ export function PaymentForm({ orderId, amount }: PaymentFormProps) {
 
           <div className="text-right">
             <Button type="submit" disabled={processing}>
-              {processing ? "Processing..." : `Pay $${amount.toFixed(2)}`}
+              {processing ? "Processing..." : `Pay $${Number(amount).toFixed(2)}`}
             </Button>
           </div>
         </form>

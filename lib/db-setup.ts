@@ -4,6 +4,8 @@ async function setupDatabase() {
   try {
     // Drop existing tables if they exist
     await query(`
+      DROP TABLE IF EXISTS order_items CASCADE;
+      DROP TABLE IF EXISTS orders CASCADE;
       DROP TABLE IF EXISTS menu_items CASCADE;
       DROP TABLE IF EXISTS categories CASCADE;
     `)
@@ -14,6 +16,22 @@ async function setupDatabase() {
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE orders (
+        id SERIAL PRIMARY KEY,
+        total DECIMAL(10, 2) NOT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        payment_intent_id VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES orders(id),
+        menu_item_id INTEGER REFERENCES menu_items(id),
+        quantity INTEGER NOT NULL,
+        price DECIMAL(10, 2) NOT NULL
       );
     `)
 
@@ -44,34 +62,10 @@ async function setupDatabase() {
 
     console.log('Categories inserted successfully')
 
-    // Get categories for reference
-    const categories = await query('SELECT * FROM categories')
-    const categoryMap = categories.reduce((acc: any, cat: any) => {
-      acc[cat.name] = cat.id
-      return acc
-    }, {})
-
-    // Insert sample menu items
-    await query(`
-      INSERT INTO menu_items (name, description, price, category_id, image_url) VALUES 
-        ('California Roll', 'Crab, avocado, and cucumber', 8.99, $1, '/images/california-roll.jpg'),
-        ('Salmon Nigiri', 'Fresh salmon over rice', 6.99, $2, '/images/salmon-nigiri.jpg'),
-        ('Spicy Tuna Roll', 'Fresh tuna with spicy sauce', 9.99, $1, '/images/spicy-tuna.jpg'),
-        ('Miso Soup', 'Traditional Japanese soup', 3.99, $3, '/images/miso-soup.jpg'),
-        ('Green Tea', 'Hot Japanese green tea', 2.99, $4, '/images/green-tea.jpg')
-    `, [
-      categoryMap['Rolls'],
-      categoryMap['Nigiri & Sashimi'],
-      categoryMap['Appetizers'],
-      categoryMap['Drinks']
-    ])
-
-    console.log('Menu items inserted successfully')
-
   } catch (error) {
     console.error('Database setup failed:', error)
     throw error
   }
 }
 
-setupDatabase() 
+setupDatabase()

@@ -74,7 +74,7 @@ function CheckoutForm({ orderId, amount }: { orderId: string; amount: number }) 
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full" disabled={!stripe || isLoading}>
-            {isLoading ? "Processing..." : `Pay $${amount.toFixed(2)}`}
+            {isLoading ? "Processing..." : `Pay $${Number(amount).toFixed(2)}`}
           </Button>
         </CardFooter>
       </form>

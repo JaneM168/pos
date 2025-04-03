@@ -48,7 +48,7 @@ function PaymentForm({ orderId, amount }: { orderId: string; amount: number }) {
         className="w-full mt-4"
         disabled={!stripe || processing}
       >
-        {processing ? "Processing..." : `Pay $${amount.toFixed(2)}`}
+        {processing ? "Processing..." : `Pay $${Number(amount).toFixed(2)}`}
       </Button>
     </form>
   )
@@ -59,7 +59,7 @@ export function OnlinePayment({ orderId, amount }: { orderId: string; amount: nu
 
   useEffect(() => {
     const initializePayment = async () => {
-      const response = await fetch("/api/payment/create-intent", {
+      const response = await fetch("/api/payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

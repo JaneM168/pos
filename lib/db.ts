@@ -12,7 +12,7 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
-  connectionTimeoutMillis: 5000, // 5 second timeout
+  connectionTimeoutMillis: 10000, // 10 second timeout
   query_timeout: 10000, // 10 second timeout for queries
 })
 
@@ -43,13 +43,13 @@ export async function initDb() {
   const createTables = `
     CREATE TABLE IF NOT EXISTS categories (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
+      name VARCHAR(255) NOT NULL UNIQUE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS menu_items (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
+      name VARCHAR(255) NOT NULL UNIQUE,
       description TEXT,
       price DECIMAL(10, 2) NOT NULL,
       image_url TEXT,
@@ -58,10 +58,10 @@ export async function initDb() {
     );
 
     CREATE TABLE IF NOT EXISTS orders (
-      id VARCHAR(255) PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       customer_name VARCHAR(255),
       customer_email VARCHAR(255),
-      status VARCHAR(50) NOT NULL,
+      status VARCHAR(50) NOT NULL DEFAULT 'pending',
       subtotal DECIMAL(10, 2) NOT NULL,
       tax DECIMAL(10, 2) NOT NULL,
       total DECIMAL(10, 2) NOT NULL,
@@ -70,7 +70,7 @@ export async function initDb() {
 
     CREATE TABLE IF NOT EXISTS order_items (
       id SERIAL PRIMARY KEY,
-      order_id VARCHAR(255) REFERENCES orders(id),
+      order_id INTEGER REFERENCES orders(id),
       menu_item_id INTEGER REFERENCES menu_items(id),
       quantity INTEGER NOT NULL,
       price DECIMAL(10, 2) NOT NULL
@@ -81,9 +81,9 @@ export async function initDb() {
     await query(createTables)
     console.log("Database tables initialized")
 
-    // Check if categories exist, if not, seed initial data
+    // Check if categories exist; if not, seed initial data
     const categoriesCount = await query("SELECT COUNT(*) FROM categories")
-    if (categoriesCount[0].count === "0") {
+    if (parseInt(categoriesCount[0].count) === 0) {
       await seedInitialData()
     }
   } catch (error) {
