@@ -40,6 +40,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@stripe/react-stripe-js": "latest",
     "@stripe/stripe-js": "latest",
+    "@stripe/terminal-js": "^0.23.0",
     "@types/pg": "^8.11.11",
     "@vercel/blob": "latest",
     "autoprefixer": "^10.4.20",
